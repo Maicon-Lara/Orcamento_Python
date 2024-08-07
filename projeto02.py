@@ -1,5 +1,6 @@
 import streamlit as st
 import yagmail
+from fpdf import FPDF
 
 # Configuração do e-mail
 SMTP_SERVER = "smtp.gmail.com"
@@ -22,6 +23,15 @@ def gerar_orcamento(nome, endereco, telefone, email, descricao, valor):
     """
     return orcamento
 
+def gerar_pdf(orcamento):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    pdf.cell(0, 10, "Orçamento", 1, 1, "C")
+    pdf.ln(10)
+    pdf.multi_cell(0, 10, orcamento, 1, "L")
+    pdf.output("orcamento.pdf", "F")
+
 def main():
     st.title("Gerar Orçamento")
     st.write("Preencha os campos abaixo para gerar um orçamento")
@@ -42,7 +52,8 @@ def main():
             to_email = email
             subject = "Orçamento"
             body = "Segue em anexo o orçamento gerado"
-            file = None
+            gerar_pdf(orcamento)
+            file = "orcamento.pdf"
             send_email(to_email, subject, body, file)
             st.success("Orçamento enviado com sucesso!")
 
