@@ -1,5 +1,7 @@
 from fpdf import FPDF
 
+#Prijeto inicial-Basico
+
 projeto=input("Digite a descrição do projeto:")
 horas_estimadas=input("Digite o total de horas estimadas:")
 valor_hora=input("Digit o valor da hora trabalhada:")
