@@ -1,26 +1,6 @@
 import streamlit as st
-import yagmail
+import win32com.client as win32
 from fpdf import FPDF
-
-# Configuração do e-mail
-SMTP_SERVER = "smtp.gmail.com"
-SMTP_PORT = 587
-FROM_EMAIL = "mixmaicon@gmail.com"
-
-def send_email(to_email, subject, body, file):
-    try:
-        with yagmail.SMTP(FROM_EMAIL) as yag:
-            yag.send(to_email, subject, body, attachments=[file])
-        return True
-    except yagmail.SMTPAuthenticationError as e:
-        print(f"Erro de autenticação: {e}")
-        return False
-    except yagmail.SMTPException as e:
-        print(f"Erro de envio de e-mail: {e}")
-        return False
-    except Exception as e:
-        print(f"Erro inesperado: {e}")
-        return False
 
 def gerar_orcamento(
     nome,
@@ -34,8 +14,11 @@ def gerar_orcamento(
     prazo,
 ):
     # validação de entrada
+    if not nome or not endereco or not telefone or not email or not descricao or not projeto or not horas_estimadas or not valor_hora or not prazo:
+        return "Preencha todos os campos!"
+
     valor_total = int(horas_estimadas) * int(valor_hora)
-    orcamento = f"""I
+    orcamento = f"""
     Nome: {nome}
     Endereço: {endereco}
     Telefone: {telefone}
@@ -45,7 +28,7 @@ def gerar_orcamento(
     Horas estimadas: {horas_estimadas}
     Valor da hora trabalhada: {valor_hora}
     Prazo: {prazo}
-    Valor total: {valor_total}
+    Valor total: {str(valor_total)}
     """
 
     pdf = FPDF()
@@ -57,6 +40,24 @@ def gerar_orcamento(
     pdf.output("orcamento.pdf", "F")
     return orcamento, valor_total
 
+def enviar_email(email_destinatario, projeto, descricao, anexo):
+    # criar a integração com o outlook
+    outlook = win32.Dispatch('outlook.application')
+
+    # criar um email
+    email = outlook.CreateItem(0)
+
+    # configurar as informações do seu e-mail
+    email.To = email_destinatario
+    email.Subject = projeto
+    email.HTMLBody = descricao
+
+    email.Attachments.Add(anexo)
+
+    email.Send()
+    print("Email Enviado")
+    return True
+
 def main():
     st.title("Gerar Orçamento")
     st.write("Preencha os campos abaixo para gerar um orçamento")
@@ -64,7 +65,7 @@ def main():
     nome = st.text_input("Nome")
     endereco = st.text_input("Endereço")
     telefone = st.text_input("Telefone")
-    email = st.text_input("E-mail")
+    email_destinatario = st.text_input("E-mail")
     descricao = st.text_area("Descrição")
     projeto = st.text_input("Nome do projeto")
     horas_estimadas = st.text_input("Horas estimadas")
@@ -72,11 +73,11 @@ def main():
     prazo = st.text_input("Prazo")
 
     if st.button("Gerar Orçamento"):
-        orcamento, valor_total = gerar_orcamento(
+        orcamento = gerar_orcamento(
             nome,
             endereco,
             telefone,
-            email,
+            email_destinatario,
             descricao,
             projeto,
             horas_estimadas,
@@ -87,11 +88,8 @@ def main():
         st.write(orcamento)
 
     if st.button("Enviar Orçamento por E-mail"):
-        to_email = email
-        subject = "Orçamento"
-        body = "Segue em anexo o orçamento gerado"
-        file = "orcamento.pdf"
-        if send_email(to_email, subject, body, file):
+        anexo = "C:\\ws-python\\Projeto1\\template.png"
+        if enviar_email(email_destinatario, projeto, descricao, anexo):
             st.success("Orçamento enviado com sucesso!")
         else:
             st.error("Erro ao enviar e-mail")
