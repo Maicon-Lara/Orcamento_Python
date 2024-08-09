@@ -7,10 +7,10 @@ from email import encoders
 from fpdf import FPDF
 
 # Configuração do e-mail
-SMTP_SERVER = "mx1.milium.com.br"
+SMTP_SERVER = "XXXXXXXr"
 SMTP_PORT = 587
-FROM_EMAIL = "maicon.lara@milium.com.br "
-PASSWORD = "Pwrklj94"
+FROM_EMAIL = " XXXXXXXX "
+PASSWORD = "XXXXXXX"
 
 def send_email(to_email, subject, body, file):
     msg = MIMEMultipart()
