@@ -24,8 +24,8 @@ email.HTMLBody = f"""
 <p>Código Python</p>
 """
 
-# anexo = "C://Users/joaop/Downloads/arquivo.xlsx"
-# email.Attachments.Add(anexo)
+anexo = r"C://Users/maicon.lara/Desktop/orcamento.pdf"
+email.Attachments.Add(anexo)
 
 email.Send()
 print("Email Enviado")
